@@ -1,0 +1,56 @@
+    /* ======================
+       Parse ONLY PPTX for AI
+    ====================== */
+
+    // if (ext === ".pptx") {
+    //   const zip = new AdmZip(filePath);
+    //   const entries = zip.getEntries();
+    //   const parser = new XMLParser();
+
+    //   let slides = [];
+    //   let slideNo = 1;
+
+    //   for (const entry of entries) {
+    //     if (entry.entryName.includes("ppt/slides/slide")) {
+    //       const xml = entry.getData().toString("utf8");
+
+    //       const json = parser.parse(xml);
+
+    //       const text = JSON.stringify(json)
+    //         .replace(/[^a-zA-Z0-9 .]/g, " ")
+    //         .trim();
+
+    //       slides.push({
+    //         sessionId,
+    //         slideNo: slideNo++,
+    //         text
+    //       });
+    //     }
+    //   }
+
+    //   await Slide.insertMany(slides);
+    // }
+
+    /* ======================
+   Parse PDF for AI ⭐ NEW
+====================== */
+
+// if (ext === ".pdf") {
+
+//   const buffer = fs.readFileSync(filePath);
+
+//   const data = await pdfParse(buffer);
+
+//   // split long text into chunks (like slides)
+//   const chunks = data.text.match(/(.|[\r\n]){1,1200}/g) || [];
+
+//   const slides = chunks.map((chunk, index) => ({
+//     sessionId,
+//     slideNo: index + 1,
+//     text: chunk.trim()
+//   }));
+
+//   await Slide.deleteMany({ sessionId }); // clear old
+//   await Slide.insertMany(slides);
+// }
+  
