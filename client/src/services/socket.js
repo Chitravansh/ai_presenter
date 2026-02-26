@@ -1,6 +1,10 @@
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:5000", {
+const SERVER_PORT = import.meta.env.VITE_SERVER_PORT || 5000
+
+
+
+const socket = io(`http://localhost:${SERVER_PORT}`, {
   autoConnect: true,
 });
 

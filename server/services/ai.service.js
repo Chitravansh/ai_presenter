@@ -10,12 +10,12 @@ async function askAI(question, sessionId) {
   const res = await axios.post(
     "https://openrouter.ai/api/v1/chat/completions",
     {
-      model: "openai/gpt-4o-mini",
+      model: "nvidia/nemotron-nano-12b-v2-vl:free",
       messages: [
         {
           role: "system",
           content:
-            "Answer ONLY using the provided slides. If not found say: Not covered in this presentation."
+            "Answer ONLY using the provided slides. If not found say: Not covered in this presentation. And Just Give short answers in 60 words also ensure that you don't ry to bold or gighlight anything just give the simple answer in text. "
         },
         {
           role: "user",

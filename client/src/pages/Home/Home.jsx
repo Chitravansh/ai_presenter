@@ -7,6 +7,7 @@ export default function Home() {
   const createSession = async () => {
     const res = await api.post("/sessions/create");
     navigate(`/presenter/${res.data.sessionId}`);
+    // console.log("session created");
   };
 
   const joinSession = () => {
