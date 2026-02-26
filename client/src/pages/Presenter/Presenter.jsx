@@ -3,6 +3,8 @@ import { useEffect, useState, useRef } from "react"; // ✅ added useRef
 import api from "../../services/api";
 import socket from "../../services/socket";
 
+const SERVER_PORT = import.meta.env.VITE_SERVER_PORT || 5000
+
 export default function Presenter() {
   const { id } = useParams();
 
@@ -122,7 +124,7 @@ useEffect(() => {
             >
               <iframe
                 key={pageNumber}
-                src={`http://localhost:5000/uploads/${pptFile}#page=${pageNumber}&zoom=page-width&toolbar=0&navpanes=0&scrollbar=0`}
+                src={`http://localhost:${SERVER_PORT}/uploads/${pptFile}#page=${pageNumber}&zoom=page-width&toolbar=0&navpanes=0&scrollbar=0`}
                 className="w-full h-full"
                 title="slides"
               />
