@@ -1,40 +1,55 @@
 import { useNavigate } from "react-router-dom";
-import api from "../../services/api";
 
 export default function Home() {
   const navigate = useNavigate();
 
-  const createSession = async () => {
-    const res = await api.post("/sessions/create");
-    navigate(`/presenter/${res.data.sessionId}`);
+  const handleStart = () => {
+    const sessionId = Math.random().toString(36).substring(2, 8);
+    navigate(`/presenter/${sessionId}`);
   };
 
-  const joinSession = () => {
-    const id = prompt("Enter Session ID");
-    navigate(`/audience/${id}`);
+  const handleJoin = () => {
+    const sessionId = prompt("Enter Session ID:");
+    if (sessionId) {
+      navigate(`/audience/${sessionId}`);
+    }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="bg-white shadow-xl rounded-2xl p-10 w-[400px] text-center space-y-6">
+    <div style={styles.container}>
+      <h1>AI Presentation System</h1>
 
-        <h1 className="text-2xl font-bold">AI Presentation System</h1>
+      <button onClick={handleStart} style={styles.primaryBtn}>
+        Start Seminar
+      </button>
 
-        <button
-          onClick={createSession}
-          className="w-full bg-blue-600 text-white py-2 rounded-lg"
-        >
-          Start Seminar
-        </button>
-
-        <button
-          onClick={joinSession}
-          className="w-full border py-2 rounded-lg"
-        >
-          Join Seminar
-        </button>
-
-      </div>
+      <button onClick={handleJoin} style={styles.secondaryBtn}>
+        Join Seminar
+      </button>
     </div>
   );
 }
+
+const styles = {
+  container: {
+    textAlign: "center",
+    marginTop: "100px"
+  },
+  primaryBtn: {
+    padding: "12px 20px",
+    margin: "10px",
+    backgroundColor: "#2563eb",
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "pointer"
+  },
+  secondaryBtn: {
+    padding: "12px 20px",
+    margin: "10px",
+    backgroundColor: "white",
+    border: "1px solid #2563eb",
+    borderRadius: "8px",
+    cursor: "pointer"
+  }
+};
