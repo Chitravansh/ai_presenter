@@ -25,4 +25,6 @@ dist-ssr
 
 #.env
 
-*.env
+*.env   
+# Ignore uploaded files
+server/uploads/
