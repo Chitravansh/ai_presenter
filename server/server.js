@@ -44,6 +44,9 @@ connectDB();
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/questions", questionRoutes);
 app.use("/api/upload", uploadRoutes);
+app.get("/", (req, res) => {
+  res.send("AI Presenter Backend is running 🚀");
+});
 
 
 
