@@ -1991,7 +1991,9 @@ import { useEffect, useState, useRef } from "react";
 import api from "../../services/api";
 import socket from "../../services/socket";
 
-const SERVER_PORT = import.meta.env.VITE_SERVER_PORT || 5000;
+//const SERVER_PORT = import.meta.env.VITE_SERVER_PORT || 5000;
+
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function Presenter() {
   const { id } = useParams();
@@ -2442,9 +2444,15 @@ export default function Presenter() {
                   }
                 `}</style>
                 <div className="absolute inset-0 z-10 cursor-default" />
-                <iframe
+                {/* <iframe
                   key={pageNumber}
                   src={`http://localhost:${SERVER_PORT}/uploads/${pptFile}#page=${pageNumber}&view=Fit&toolbar=0&navpanes=0&scrollbar=0`}
+                  className="absolute inset-0 w-full h-full border-none"
+                  title="slides"
+                /> */}
+                <iframe
+                  key={pageNumber}
+                  src={`${BASE_URL}/uploads/${pptFile}#page=${pageNumber}&view=Fit&toolbar=0&navpanes=0&scrollbar=0`}
                   className="absolute inset-0 w-full h-full border-none"
                   title="slides"
                 />
