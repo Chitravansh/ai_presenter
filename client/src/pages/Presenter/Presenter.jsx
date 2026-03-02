@@ -786,6 +786,10 @@ export default function Presenter() {
 
   const [reactions, setReactions] = useState([]);
 
+  // Add this state at the top of Presenter.jsx
+  const [recommendations, setRecommendations] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+
   const recognitionRef = useRef(null);
 
   const slideRef = useRef(null);
@@ -794,7 +798,7 @@ export default function Presenter() {
   const [fullTranscript, setFullTranscript] = useState("");
   const fullTranscriptRef = useRef(""); // Keeps track of text inside the speech event
 
-  const joinLink = `${window.location.origin}/join/${id}`;
+  const joinLink = `${window.location.origin}/audience/${id}`;
 
   /* ======================
      Sharing Functions
@@ -926,6 +930,11 @@ export default function Presenter() {
     fetchSessionData();
     socket.emit("join-session", id);
 
+    const handleRecommendations = (data) => {
+    setRecommendations(data);
+    setIsGenerating(false);
+  };
+
     const handler = (data) => {
       setQuestions((prev) => [...prev, data]);
     };
@@ -944,8 +953,10 @@ export default function Presenter() {
 
     socket.on("receive-question", handler);
     socket.on("receive-reaction", handleReaction);
+    socket.on("receive-recommendations", handleRecommendations);
     return () =>{ socket.off("receive-question", handler);
                  socket.off("receive-reaction", handleReaction);
+                 socket.off("receive-recommendations", handleRecommendations);
     }
   }, [id]);
 
@@ -1093,6 +1104,40 @@ export default function Presenter() {
     document.body.removeChild(element);
   };
 
+  const generateRecommendations = () => {
+    if (!fullTranscript) {
+      alert("Turn on captions and speak first so the AI knows what your topic is!");
+      return;
+    }
+    setIsGenerating(true);
+    // Send the last 500 characters of speech to the AI for context
+    const context = fullTranscript.slice(-500); 
+    socket.emit("get-recommendations", { sessionId: id, currentText: context });
+  };
+
+
+  /**===================================
+   * Function to make the link clickable
+   * ===================================
+   */
+  // 👇 Helper function to make AI text links clickable
+  const formatLinks = (text) => {
+    if (!text) return null;
+    // Regex to detect http or https links
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    
+    return text.split(urlRegex).map((part, i) => {
+      if (part.match(urlRegex)) {
+        return (
+          <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 break-all">
+            {part}
+          </a>
+        );
+      }
+      return <span key={i}>{part}</span>;
+    });
+  };
+
   /* ======================
      UI
   ====================== */
@@ -1130,6 +1175,16 @@ export default function Presenter() {
           <button onClick={copyLink} className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded text-sm transition-colors">
             Copy Link
           </button>
+
+          {/* 👇 NEW: End Session & View Analytics Button 👇 */}
+          <button 
+            onClick={() => window.location.href = `/analytics/${id}`} 
+            className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-sm font-bold transition-colors shadow-sm ml-4"
+          >
+            🛑 End Session & View Analytics
+          </button>
+
+
           <button onClick={() => { setShowShare(!showShare); setShowQR(false); }} className="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded text-sm transition-colors">
             Share...
           </button>
@@ -1268,6 +1323,32 @@ export default function Presenter() {
 
         {/* RIGHT → QUESTIONS */}
         <div className="w-1/2 p-6 bg-white overflow-y-auto">
+
+        {/* 👇 NEW: Recommendation Engine Panel 👇 */}
+          <div className="mb-8 bg-blue-50 border border-blue-200 rounded-xl p-5 shadow-sm">
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="text-lg font-bold text-blue-900">🧠 AI Suggested Content</h2>
+              <button 
+                onClick={generateRecommendations}
+                disabled={isGenerating}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded shadow transition disabled:opacity-50"
+              >
+                {isGenerating ? "Generating..." : "💡 Auto-Suggest Links"}
+              </button>
+            </div>
+            
+               {recommendations ? (
+              <div className="p-4 bg-white rounded border border-blue-100 text-gray-700 whitespace-pre-wrap leading-relaxed">
+                {/* 👇 The formatLinks function is now actively wrapping the URLs! 👇 */}
+                {formatLinks(recommendations)}
+              </div>
+            ) : (
+              <p className="text-sm text-blue-600 italic">Click the button to generate related study materials based on your live speech.</p>
+            )}
+          </div>
+
+
+        
           <h2 className="text-xl font-bold mb-4 border-b pb-2">Live Questions</h2>
 
           {questions.length === 0 ? (

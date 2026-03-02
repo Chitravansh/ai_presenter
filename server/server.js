@@ -4,7 +4,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 require("dotenv").config();
 
-const askAI = require("./services/ai.service");
+const { askAI, generateRecommendations } = require("./services/ai.service");
 const connectDB = require("./config/db");
 
 const sessionRoutes = require("./routes/session.routes");
@@ -14,6 +14,7 @@ const uploadRoutes = require("./routes/upload.routes");
 const app = express();
 const server = http.createServer(app);
 const Question = require("./models/question.model");
+
 
 
 /* ======================
@@ -79,9 +80,38 @@ io.on("connection", (socket) => {
 
   // Send Reaction 
   // 👇 Add this right below your "send-caption" socket event
-  socket.on("send-reaction", ({ sessionId, reaction }) => {
-    // We use io.to() instead of socket.to() so the sender ALSO sees their own emoji float up!
+  // socket.on("send-reaction", ({ sessionId, reaction }) => {
+  //   // We use io.to() instead of socket.to() so the sender ALSO sees their own emoji float up!
+  //   io.to(sessionId).emit("receive-reaction", reaction);
+  // });
+
+  // 👇 UPDATED: Broadcast the emoji AND save it to the database
+  socket.on("send-reaction", async ({ sessionId, reaction }) => {
+    // 1. Send it to the screens
     io.to(sessionId).emit("receive-reaction", reaction);
+
+    // 2. Map the emoji to the database field
+    const reactionMap = { 
+      "👍": "likes", 
+      "💡": "aha", 
+      "😕": "confused", 
+      "👏": "applause" 
+    };
+    
+    const dbField = reactionMap[reaction];
+
+    // 3. Increment the count in MongoDB
+    if (dbField) {
+      try {
+        const Session = require("./models/session.model"); // Ensure Session model is imported
+        await Session.findOneAndUpdate(
+          { sessionId: sessionId },
+          { $inc: { [`analytics.${dbField}`]: 1 } } // $inc adds 1 to the current number
+        );
+      } catch (err) {
+        console.error("Failed to save reaction analytics:", err);
+      }
+    }
   });
 
   // socket.on("send-question", async ({ sessionId, question }) => {
@@ -132,7 +162,46 @@ io.on("connection", (socket) => {
       });
     }
   });
+
+  // // 👇 NEW: Dynamic Content Recommendation Event 👇
+  // socket.on("get-recommendations", async ({ sessionId, currentText }) => {
+  //   try {
+  //     // 1. Ask your AI to generate suggestions based on the presenter's speech
+  //     // (You might need to adjust your askAI prompt to return a JSON array of suggestions)
+  //     const prompt = `Based on this presentation text: "${currentText}", suggest 3 highly relevant topics, articles, or concepts the audience should explore. Format your response as a simple list.`;
+      
+  //     const recommendations = await askAI(prompt, sessionId);
+
+  //     // 2. Broadcast the AI's recommendations to the audience and presenter
+  //     io.to(sessionId).emit("receive-recommendations", recommendations);
+      
+  //   } catch (err) {
+  //     console.error("AI Recommendation Error:", err);
+  //   }
+  // });
+
+  // 👇 UPDATED: Dynamic Content Recommendation Event 👇
+  socket.on("get-recommendations", async ({ sessionId, currentText }) => {
+    try {
+      // We now call the NEW function instead of askAI!
+      const recommendations = await generateRecommendations(currentText);
+
+      io.to(sessionId).emit("receive-recommendations", recommendations);
+      
+    } catch (err) {
+      console.error("AI Recommendation Error:", err);
+    }
+  });
+
+
+
 });
+
+
+
+
+
+
 
 
 

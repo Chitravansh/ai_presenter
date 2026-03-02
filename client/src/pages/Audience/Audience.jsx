@@ -67,6 +67,7 @@ export default function Audience() {
   const [showCaptions, setShowCaptions] = useState(true); // Default to true
   const [fullTranscript, setFullTranscript] = useState(""); //Transcription
   const [reactions, setReactions] = useState([]);
+  const [recommendations, setRecommendations] = useState("");
 
   const slideRef = useRef(null);
 
@@ -105,6 +106,9 @@ export default function Audience() {
   useEffect(() => {
     fetchSessionData();
     socket.emit("join-session", id);
+
+    //Recommendations 
+    const handleRecommendations = (data) => setRecommendations(data);
 
 
     // Listen for AI answering questions
@@ -148,12 +152,14 @@ export default function Audience() {
     socket.on("receive-question", handleQuestion);
     socket.on("slide-changed", handleSlideChange);
     socket.on("receive-caption", handleCaption); // Caption reciever
+    socket.on("receive-recommendations", handleRecommendations);
 
     return () => {
       socket.off("receive-question", handleQuestion);
       socket.off("slide-changed", handleSlideChange);
       socket.off("receive-caption", handleCaption); //cleanup function for caption
       socket.off("receive-reaction", handleReaction);
+      socket.off("receive-recommendations", handleRecommendations);
     };
   }, [id]);
 
@@ -195,6 +201,24 @@ export default function Audience() {
 
   const sendReaction = (emoji) => {
     socket.emit("send-reaction", { sessionId: id, reaction: emoji });
+  };
+
+  // 👇 Helper function to make AI text links clickable
+  const formatLinks = (text) => {
+    if (!text) return null;
+    // Regex to detect http or https links
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    
+    return text.split(urlRegex).map((part, i) => {
+      if (part.match(urlRegex)) {
+        return (
+          <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800 break-all">
+            {part}
+          </a>
+        );
+      }
+      return <span key={i}>{part}</span>;
+    });
   };
 
   /* ======================
@@ -307,9 +331,19 @@ export default function Audience() {
 
         {/* RIGHT → Q&A FEED & INPUT */}
         <div className="w-1/2 flex flex-col bg-white">
+
           
           {/* Scrollable Questions Feed */}
           <div className="flex-1 p-6 overflow-y-auto">
+                    {recommendations && (
+            <div className="mb-6 bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-100 rounded-xl p-5 shadow-sm mx-6 mt-6">
+              <h2 className="text-lg font-bold text-indigo-900 mb-2">📚 Presenter's Suggested Reading</h2>
+              <div className="p-4 bg-white rounded shadow-inner text-gray-800 whitespace-pre-wrap text-sm border border-indigo-50">
+                {/* 👇 The function is now wrapping the text to create links! 👇 */}
+                {formatLinks(recommendations)}
+              </div>
+            </div>
+          )}
             <h2 className="text-xl font-bold mb-4 border-b pb-2 text-gray-800">Live Q&A</h2>
 
             {questions.length === 0 ? (
