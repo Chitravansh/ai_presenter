@@ -220,11 +220,13 @@ async function generateRecommendations(currentText, sessionId) {
 
     if (res.data && res.data.choices && res.data.choices.length > 0) {
       return res.data.choices[0].message.content;
+      console.log(res.data);
     } else {
       return "No recommendations available at this moment.";
     }
 
   } catch (error) {
+    console.log(error);
     console.error("❌ AI Recommendation API ERROR:", error.message);
     return "Sorry, could not generate recommendations at this time.";
   }
