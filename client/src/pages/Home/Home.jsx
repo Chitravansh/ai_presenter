@@ -100,7 +100,7 @@ export default function Home() {
             <a href="#features" className="hover:text-blue-600 transition-colors">Features</a>
             {/* 👇 Smooth scroll link to How It Works 👇 */}
             <a href="#how-it-works" className="hover:text-blue-600 transition-colors">How it Works</a>
-            <button className="text-blue-600 hover:text-blue-800 transition-colors">Login / Sign Up</button>
+            {/* <button className="text-blue-600 hover:text-blue-800 transition-colors">Login / Sign Up</button> */}
           </nav>
 
           {/* Mobile Burger Icon */}
@@ -135,12 +135,12 @@ export default function Home() {
             >
               How it Works
             </a>
-            <button 
+            {/* <button 
               onClick={() => setIsMobileMenuOpen(false)} 
               className="text-blue-600 font-bold hover:text-blue-800 transition-colors text-left pt-2"
             >
               Login / Sign Up
-            </button>
+            </button> */}
           </div>
         )}
       </header>
