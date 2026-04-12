@@ -151,7 +151,7 @@ async function askAI(question, sessionId) {
     const res = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",
       {
-        model: "stepfun/step-3.5-flash:free",
+        model: "minimax/minimax-m2.5:free",
         messages: [
           {
             role: "system",
@@ -173,6 +173,7 @@ async function askAI(question, sessionId) {
     );
 
     if (res.data && res.data.choices && res.data.choices.length > 0) {
+      console.log( res.data.choices[0].message.content);
       return res.data.choices[0].message.content;
     } else {
       return "The AI is currently busy or returned an invalid response.";
