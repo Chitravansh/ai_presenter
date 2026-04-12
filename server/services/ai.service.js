@@ -198,7 +198,7 @@ async function generateRecommendations(currentText, sessionId) {
     const res = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",
       {
-        model: "stepfun/step-3.5-flash:free",
+        model: "minimax/minimax-m2.5:free",
         messages: [
           {
             role: "system",
