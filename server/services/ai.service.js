@@ -149,9 +149,9 @@ async function askAI(question, sessionId) {
     const context = slides.map((s) => s.text).join("\n");
 
     const res = await axios.post(
-      "https://openrouter.ai/api/v1/chat/completions",
+      "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
       {
-        model: "minimax/minimax-m2.5:free",
+        model: "gemini-3-flash-preview",
         messages: [
           {
             role: "system",
@@ -181,6 +181,9 @@ async function askAI(question, sessionId) {
 
   } catch (error) {
     console.error("❌ AI API ERROR:", error.message);
+    if (error.response && error.response.data) {
+      console.error("🔍 GOOGLE'S EXACT REASON:", JSON.stringify(error.response.data, null, 2));
+    }
     return "Sorry, I am having trouble reaching the AI server right now.";
   }
 }
@@ -196,9 +199,9 @@ async function generateRecommendations(currentText, sessionId) {
 
     // 2. Ask the AI using BOTH the slides and the live speech
     const res = await axios.post(
-      "https://openrouter.ai/api/v1/chat/completions",
+      "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
       {
-        model: "minimax/minimax-m2.5:free",
+        model: "gemini-3.1-flash-lite-preview",
         messages: [
           {
             role: "system",
@@ -229,7 +232,11 @@ async function generateRecommendations(currentText, sessionId) {
   } catch (error) {
     console.log(error);
     console.error("❌ AI Recommendation API ERROR:", error.message);
+     if (error.response && error.response.data) {
+      console.error("🔍 GOOGLE'S EXACT REASON:", JSON.stringify(error.response.data, null, 2));
+    }
     return "Sorry, could not generate recommendations at this time.";
+   
   }
 }
 
