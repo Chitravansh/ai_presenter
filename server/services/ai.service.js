@@ -201,7 +201,7 @@ async function generateRecommendations(currentText, sessionId) {
     const res = await axios.post(
       "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
       {
-        model: "gemini-3.1-flash-lite-preview",
+        model: "gemini-3-flash-previeww",
         messages: [
           {
             role: "system",
