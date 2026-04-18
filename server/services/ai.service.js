@@ -196,7 +196,7 @@ async function generateRecommendations(currentText, sessionId) {
     // 1. Fetch the presentation slides context
     const slides = await Slide.find({ sessionId });
     const slideContext = slides.map((s) => s.text).join("\n");
-S
+
     // 2. Ask the AI using BOTH the slides and the live speech
     const res = await axios.post(
       "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
